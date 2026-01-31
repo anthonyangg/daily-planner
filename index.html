@@ -32,7 +32,6 @@
       display: flex;
       gap: 1rem;
       align-items: center;
-      flex-wrap: wrap;
     }
 
     header input {
@@ -46,14 +45,13 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      max-width: 100%;
-      overflow-x: hidden;
+      overflow-x: auto; /* optional: scroll instead of breaking */
     }
 
     .week {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(7, calc((100% - 6*0.6rem)/7)); /* 7 columns, 6 gaps subtracted */
+      gap: 0.6rem;
       background: var(--pink-card);
       border-radius: 14px;
       padding: 0.75rem;
@@ -72,7 +70,6 @@
       background: rgba(255,255,255,0.7);
       border-radius: 10px;
       padding: 0.4rem;
-      word-break: break-word;
     }
 
     .day-header {
@@ -113,8 +110,7 @@
     }
 
     .task input[type="text"] {
-      flex: 1 1 0;
-      min-width: 30px;
+      flex: 1;
       border: none;
       background: transparent;
       outline: none;
@@ -127,18 +123,10 @@
     }
 
     .delete {
-      flex: 0 0 auto;
       border: none;
       background: none;
       cursor: pointer;
       font-size: 0.75rem;
-    }
-
-    /* Responsive for very small screens */
-    @media (max-width: 600px) {
-      .week {
-        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-      }
     }
   </style>
 </head>
@@ -187,7 +175,7 @@
         const week = document.createElement('div');
         week.className = 'week';
 
-        // Add weekday labels first
+        // Add weekday labels (first row in grid)
         for (let d = 0; d < 7; d++) {
           const label = document.createElement('div');
           label.className = 'week-label';
@@ -197,7 +185,7 @@
           week.appendChild(label);
         }
 
-        // Add day boxes
+        // Add day boxes (second row in grid)
         for (let d = 0; d < 7; d++) {
           const date = new Date(start);
           date.setDate(start.getDate() + w*7 + d);
