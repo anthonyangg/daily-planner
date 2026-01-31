@@ -42,27 +42,25 @@
       gap: 1rem;
     }
 
-    .weekday-row {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr); /* same as week grid */
+    .weekday-row, .week-grid {
+      display: flex;
+    }
+
+    .weekday-row div, .week-grid .day {
+      flex: 0 0 14.2857%; /* 100% / 7 */
       text-align: center;
+    }
+
+    .weekday-row {
       font-weight: 700;
       color: #8a3d5c;
+      margin-bottom: 0.5rem;
     }
 
     .week {
       background: var(--pink-card);
       border-radius: 14px;
       padding: 0.75rem;
-      display: grid;
-      grid-template-rows: auto 1fr; /* labels + days */
-      gap: 0.5rem;
-    }
-
-    .week-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.6rem;
     }
 
     .day {
@@ -72,6 +70,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+      margin: 0 0.043% /* tiny spacing to match gaps */;
     }
 
     .day-header {
