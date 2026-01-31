@@ -112,27 +112,28 @@
       display: flex;
       align-items: center;
       gap: 0.25rem;
+      flex-wrap: wrap; /* allow wrapping if too narrow */
     }
-
+    
     .task input[type="text"] {
-      flex: 1;
+      flex: 1 1 0; /* grow & shrink to fit container */
+      min-width: 50px; /* don’t shrink too much */
       border: none;
       background: transparent;
       outline: none;
       font-size: 0.7rem;
+    }
+    
+    .task .delete {
+      flex: 0 0 auto; /* never shrink */
+      font-size: 0.75rem;
     }
 
     .task.completed input[type="text"] {
       text-decoration: line-through;
       opacity: 0.6;
     }
-
-    .delete {
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 0.75rem;
-    }
+    
   </style>
 </head>
 <body>
@@ -263,5 +264,6 @@
   </script>
 </body>
 </html>
+
 
 
