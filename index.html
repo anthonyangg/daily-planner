@@ -15,8 +15,13 @@
       --text: #333;
     }
 
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
       font-family: 'Merriweather', serif;
       background: var(--pink-bg);
       color: var(--text);
@@ -42,35 +47,29 @@
       gap: 1rem;
     }
 
-    .weekday-row, .week-grid {
-      display: flex;
-    }
-
-    .weekday-row div, .week-grid .day {
-      flex: 0 0 14.2857%; /* 100% / 7 */
-      text-align: center;
-    }
-
-    .weekday-row {
-      font-weight: 700;
-      color: #8a3d5c;
-      margin-bottom: 0.5rem;
-    }
-
+    /* Week grid containing labels and day boxes */
     .week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.6rem;
       background: var(--pink-card);
       border-radius: 14px;
       padding: 0.75rem;
     }
 
+    .week-label {
+      text-align: center;
+      font-weight: 700;
+      color: #8a3d5c;
+    }
+
     .day {
-      background: rgba(255,255,255,0.7);
-      border-radius: 10px;
-      padding: 0.4rem;
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
-      margin: 0 0.043% /* tiny spacing to match gaps */;
+      background: rgba(255,255,255,0.7);
+      border-radius: 10px;
+      padding: 0.4rem;
     }
 
     .day-header {
@@ -143,7 +142,6 @@
 
   <script>
     const startDateInput = document.getElementById('startDate');
-    const weekdayRow = document.getElementById('weekdayRow');
     const weeksEl = document.getElementById('weeks');
 
     const STORAGE_KEY = 'threeWeekPlannerData';
@@ -152,6 +150,8 @@
     const today = new Date();
     today.setHours(0,0,0,0);
     startDateInput.valueAsDate = today;
+
+    const weekdayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
     function dateKey(d) {
       const y = d.getFullYear();
@@ -171,33 +171,27 @@
       const start = new Date(yy, mm - 1, dd);
       start.setHours(0,0,0,0);
 
-      const weekdayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
       for (let w = 0; w < 3; w++) {
         const week = document.createElement('div');
         week.className = 'week';
 
-        // Weekday labels
-        const weekdayRow = document.createElement('div');
-        weekdayRow.className = 'weekday-row';
+        // Add weekday labels (first row in grid)
         for (let d = 0; d < 7; d++) {
+          const label = document.createElement('div');
+          label.className = 'week-label';
           const date = new Date(start);
           date.setDate(start.getDate() + w*7 + d);
-          const label = document.createElement('div');
           label.textContent = weekdayNames[date.getDay()];
-          weekdayRow.appendChild(label);
+          week.appendChild(label);
         }
 
-        // Week days grid
-        const grid = document.createElement('div');
-        grid.className = 'week-grid';
-
+        // Add day boxes (second row in grid)
         for (let d = 0; d < 7; d++) {
           const date = new Date(start);
           date.setDate(start.getDate() + w*7 + d);
           const k = dateKey(date);
 
-          if (!data[k]) data[k] = Array.from({length: 8}, ()=>({text:'', done:false}));
+          if (!data[k]) data[k] = Array.from({length:8},()=>({text:'',done:false}));
 
           const tasks = data[k];
           const done = tasks.filter(t=>t.done && t.text.trim()).length;
@@ -250,10 +244,9 @@
             day.appendChild(row);
           });
 
-          grid.appendChild(day);
+          week.appendChild(day);
         }
 
-        week.append(weekdayRow, grid);
         weeksEl.appendChild(week);
       }
 
