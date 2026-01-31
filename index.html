@@ -43,22 +43,20 @@
     }
 
     .weekday-row {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr); /* same as week grid */
       text-align: center;
       font-weight: 700;
       color: #8a3d5c;
-      margin-bottom: 0.5rem;
-    }
-
-    .weekday-row div {
-      flex: 1;
     }
 
     .week {
       background: var(--pink-card);
       border-radius: 14px;
       padding: 0.75rem;
+      display: grid;
+      grid-template-rows: auto 1fr; /* labels + days */
+      gap: 0.5rem;
     }
 
     .week-grid {
@@ -141,7 +139,6 @@
   </header>
 
   <main class="planner">
-    <div class="weekday-row" id="weekdayRow"></div>
     <div id="weeks"></div>
   </main>
 
@@ -170,48 +167,50 @@
 
     function render() {
       weeksEl.innerHTML = '';
-      weekdayRow.innerHTML = '';
 
       const [yy, mm, dd] = startDateInput.value.split('-').map(Number);
       const start = new Date(yy, mm - 1, dd);
       start.setHours(0,0,0,0);
 
-      // weekday labels aligned to chosen start date
       const weekdayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        const el = document.createElement('div');
-        el.textContent = weekdayNames[d.getDay()];
-        weekdayRow.appendChild(el);
-      }
 
       for (let w = 0; w < 3; w++) {
         const week = document.createElement('div');
         week.className = 'week';
+
+        // Weekday labels
+        const weekdayRow = document.createElement('div');
+        weekdayRow.className = 'weekday-row';
+        for (let d = 0; d < 7; d++) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + w*7 + d);
+          const label = document.createElement('div');
+          label.textContent = weekdayNames[date.getDay()];
+          weekdayRow.appendChild(label);
+        }
+
+        // Week days grid
         const grid = document.createElement('div');
         grid.className = 'week-grid';
 
         for (let d = 0; d < 7; d++) {
           const date = new Date(start);
-          date.setDate(start.getDate() + w * 7 + d);
+          date.setDate(start.getDate() + w*7 + d);
           const k = dateKey(date);
 
-          if (!data[k]) {
-            data[k] = Array.from({ length: 8 }, () => ({ text: '', done: false }));
-          }
+          if (!data[k]) data[k] = Array.from({length: 8}, ()=>({text:'', done:false}));
 
           const tasks = data[k];
-          const done = tasks.filter(t => t.done && t.text.trim()).length;
-          const total = tasks.filter(t => t.text.trim()).length || 1;
-          const pct = Math.round((done / total) * 100);
+          const done = tasks.filter(t=>t.done && t.text.trim()).length;
+          const total = tasks.filter(t=>t.text.trim()).length || 1;
+          const pct = Math.round((done/total)*100);
 
           const day = document.createElement('div');
           day.className = 'day';
 
           const header = document.createElement('div');
           header.className = 'day-header';
-          if (date.getTime() === today.getTime()) header.classList.add('today');
+          if(date.getTime() === today.getTime()) header.classList.add('today');
           header.textContent = `${date.getMonth()+1}/${date.getDate()}`;
 
           const progress = document.createElement('div');
@@ -227,35 +226,35 @@
 
           day.append(header, progress, percent);
 
-          tasks.forEach((task, i) => {
+          tasks.forEach((task,i)=>{
             const row = document.createElement('div');
             row.className = 'task';
-            if (task.done) row.classList.add('completed');
+            if(task.done) row.classList.add('completed');
 
             const cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.checked = task.done;
-            cb.onchange = () => { task.done = cb.checked; save(); render(); };
+            cb.type='checkbox';
+            cb.checked=task.done;
+            cb.onchange=()=>{task.done=cb.checked; save(); render();};
 
             const input = document.createElement('input');
-            input.type = 'text';
-            input.value = task.text;
-            input.placeholder = 'Task';
-            input.oninput = () => { task.text = input.value; save(); };
+            input.type='text';
+            input.value=task.text;
+            input.placeholder='Task';
+            input.oninput=()=>{task.text=input.value; save();};
 
-            const del = document.createElement('button');
-            del.className = 'delete';
-            del.textContent = '✕';
-            del.onclick = () => { tasks[i] = { text: '', done: false }; save(); render(); };
+            const del=document.createElement('button');
+            del.className='delete';
+            del.textContent='✕';
+            del.onclick=()=>{tasks[i]={text:'',done:false}; save(); render();};
 
-            row.append(cb, input, del);
+            row.append(cb,input,del);
             day.appendChild(row);
           });
 
           grid.appendChild(day);
         }
 
-        week.appendChild(grid);
+        week.append(weekdayRow, grid);
         weeksEl.appendChild(week);
       }
 
